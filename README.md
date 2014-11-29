@@ -5,4 +5,4 @@ So this is me , a 16 year old guy from greece that has a 3-4 year background of 
 P.S. I need to do ma homework. Approx 1-1:30 hours. I live in Greece so that is GMT+2.
 If someone wants to do a little hangout talk I would be happy to do it. Questions?Feel free Suggestions?Same thing I am open to everything and looking for an art guy to practise my game development skills
 
-http://www.reddit.com/r/FreeCodeCamp/comments/2nr1ja/learning_to_use_phaser_livestreaming/
+More : http://www.reddit.com/r/FreeCodeCamp/comments/2nr1ja/learning_to_use_phaser_livestreaming/
