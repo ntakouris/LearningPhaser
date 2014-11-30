@@ -1,4 +1,5 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game_div');
+var char = null;
 
 var main_state = {
 
@@ -9,10 +10,15 @@ var main_state = {
 
     create: function() { 
         
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        
         game.stage.backgroundColor = '#736357';
         
-        char = game.add.sprite(250, 300, 'char');  
-        velocity = -5;
+        char = game.add.sprite(35, 300, 'char');  
+        
+        game.physics.arcade.enable(char);
+        
+        velocity = -100;
         lazer_shoot_sound = game.add.audio('lazer_shoot');
         
         spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -20,15 +26,40 @@ var main_state = {
         
         score = 0;
         
-        scoreText = game.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#123' });
+        scoreText = game.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#123' });
         
         upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        upKey.onDown.add(this.moveUp, this);
         
         downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        downKey.onDown.add(this.moveDown, this);
     },
 
     update: function() {
+        this.fixCharacterPositionIfOutOfScreenBounds();
         
+    },
+    
+    moveUp: function(){
+        char.body.velocity.y = velocity;
+    },
+    
+    moveDown: function(){
+        char.body.velocity.y = -velocity;
+    },
+    
+    fixCharacterPositionIfOutOfScreenBounds: function(){
+        if(char.y < 0){
+            char.y = 0;
+            char.body.velocity.y = 0;
+            return true;
+        }else if(char.y + char.height > 600){
+            char.y = 600 - char.height;
+            char.body.velocity.y = 0;
+            return true;
+        }else{
+            return false;
+        }
     },
     
     shoot_lazer: function(){
@@ -39,7 +70,6 @@ var main_state = {
         this.score += 10;
         this.scoreText.text = "Score: " + this.score;
     }
-    
 }
 
 game.state.add('main', main_state);  
