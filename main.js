@@ -1,17 +1,22 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game_div');
 var char = null;
 var lazers = [];
+var enemies = [];
+var waveDiff;//number of enemies to spawn
 
 var main_state = {
 
     preload: function() {
        game.load.image('char', 'assets/robot.png');  
+       game.load.image('enemy', 'assets/gay_robot.png');  
        game.load.image('lazer', 'assets/lazer.png');
        game.load.audio('lazer_shoot', 'assets/lazer_shoot.wav');
        game.load.audio('explode', 'assets/explosion.wav');
     },
 
     create: function() { 
+        
+        waveDiff = 1;
         
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
@@ -20,7 +25,7 @@ var main_state = {
         char = game.add.sprite(35, 300, 'char');  
         game.physics.arcade.enable(char);
         
-        velocity = -200;
+        velocity = -500;
         lazer_velocity = 300;
         lazer_shoot_sound = game.add.audio('lazer_shoot');
         
@@ -36,17 +41,96 @@ var main_state = {
         
         downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         downKey.onDown.add(this.moveDown, this);
+        this.spawnEnemies();
+        
+        waveTimer = game.time.events.loop(Phaser.Timer.SECOND * 5, this.spawnEnemies, this);
     },
 
     update: function() {
         this.fixCharacterPositionIfOutOfScreenBounds();
         this.updateLazers();
+        this.updateEnemies();
+        
+        for(j = 0; j < lazers.length; j++){
+        for(i = 0 ; i < enemies.length; i++){
+            console.log("collide-b");
+            game.physics.arcade.collide(lazers[j], enemies[i], this.gameOver, null, this);
+        }
+        }
+        
+        for(i = 0 ; i < enemies.length; i++){
+            console.log("collision-c");
+            game.physics.arcade.collide(char, enemies[i], this.gameOver, null, this);
+        }
+    },
+    
+    destroyEnemy: function(bullet , enemy){
+      
+      bullet.destroy();
+      bullet = null;
+      
+      enemy.destroy();
+      enemy = null;
+    
+      this.update_score();
+    
+    },
+    
+    //gameOver: function(){
+        
+   // },    
+    
+    gameOver: function(x , y){
+        console.log("gameover");
+       // gameOver();
+    },
+    
+    spawnEnemies: function(){
+        for(i = 0; i < waveDiff; i++){//waves gotta stay waves .... you gotta lose sometime...
+        //random / 1 = x / 600
+        var random = Math.random();
+        var y = random * 600;
+        
+        if(y > 600 - char.height){ // pass filter fix for out of bounds | char sprite == enemy sprite
+            y -= char.height;
+        }
+        //random / 1 = x / 300
+        
+        var enemy = game.add.sprite(800 + char.width, y, 'enemy');  
+        game.physics.arcade.enable(enemy); 
+        
+        enemy.body.velocity.x = -300;
+        }
+        waveDiff++;
+    },
+    
+    updateEnemies: function(){
+        var newArr = [];
+      for (var i = 0; i < enemies.length; i++) {
+            if(enemies[i] === null){
+                
+            }else if(enemies[i].x <= 0){    
+                
+                enemies[i].destroy();
+                enemies[i] = null;
+                this.gameOver();
+                
+            }else{
+                newArr.push(enemies[i]);
+            }
+       }
+       
+       enemies = newArr;
+       
     },
     
     updateLazers: function(){
         var newArr = [];
       for (var i = 0; i < lazers.length; i++) {
-            if(lazers[i].x > 800){
+          
+            if(lazers[i] === null){
+          
+            }else if(lazers[i].x > 800){
                 lazers[i].destroy();
             }else{
                 newArr.push(lazers[i]);
@@ -105,6 +189,9 @@ var main_state = {
 
     
 }
+
+
+
 
 game.state.add('main', main_state);  
 game.state.start('main');  
