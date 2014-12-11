@@ -52,27 +52,25 @@ var main_state = {
         this.updateEnemies();
         
         for(j = 0; j < lazers.length; j++){
-        for(i = 0 ; i < enemies.length; i++){
-            console.log("collide-b");
-            game.physics.arcade.collide(lazers[j], enemies[i], this.gameOver, null, this);
+            for(i = 0 ; i < enemies.length; i++){
+                game.physics.arcade.collide(lazers[j], enemies[i], this.gameOver, null, this);
+            }
         }
-        }
-        
+
         for(i = 0 ; i < enemies.length; i++){
-            console.log("collision-c");
             game.physics.arcade.collide(char, enemies[i], this.gameOver, null, this);
         }
     },
     
     destroyEnemy: function(bullet , enemy){
+      console.log("hoorah destroy enemy");
+      this.update_score();
       
       bullet.destroy();
-      bullet = null;
+      //bullet = null;
       
       enemy.destroy();
-      enemy = null;
-    
-      this.update_score();
+      //enemy = null;
     
     },
     
@@ -100,6 +98,9 @@ var main_state = {
         game.physics.arcade.enable(enemy); 
         
         enemy.body.velocity.x = -300;
+        
+        enemies.push(enemy);
+        
         }
         waveDiff++;
     },
@@ -161,6 +162,7 @@ var main_state = {
         }else{
             return false;
         }
+        
     },
     
     shoot_lazer: function(){
@@ -189,9 +191,6 @@ var main_state = {
 
     
 }
-
-
-
 
 game.state.add('main', main_state);  
 game.state.start('main');  
