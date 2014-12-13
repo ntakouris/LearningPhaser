@@ -62,23 +62,17 @@ var main_state = {
         }
     },
     
-    destroyEnemy: function(bullet , enemy){
+    destroyEnemy: function(lazer , enemy){
       console.log("hoorah destroy enemy");
       this.update_score();
       
-      bullet.destroy();
-      //bullet = null;
+      lazer.destroy();
       
       enemy.destroy();
-      //enemy = null;
     
     },
     
-    //gameOver: function(){
-        
-   // },    
-    
-    gameOver: function(x , y){
+    gameOver: function(){
         console.log("gameover");
        // gameOver();
     },
@@ -188,9 +182,6 @@ var main_state = {
         this.score += 10;
         this.scoreText.text = "Score: " + this.score;
     },
-
-    
 }
-
 game.state.add('main', main_state);  
 game.state.start('main');  
