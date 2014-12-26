@@ -6,16 +6,18 @@ var enemies = [];
 var waveDiff;//number of enemies to spawn
 var score;
 var scoreText;
-var isOver;
+var isOver = true;
 var bigScore = null;//too lazy to add dynamic calc of position based on value
 var waveTimer = null;
-
+var firstRun = true;
+var startText;
 
 
 var main_state = {
     
     startGame: function(){
-        this.isOver = false;
+        
+        isOver = false;
         this.score = 0;
         
         waveDiff = 1;
@@ -23,14 +25,18 @@ var main_state = {
         this.char = game.add.sprite(35, 300, 'char');  
         game.physics.arcade.enable(this.char);
         
-        this.scoreText = game.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#123' });
+        this.scoreText = game.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#FFFFF0' });
         
-        if(this.waveTimer === null){
-            this.waveTimer = game.time.events.loop(Phaser.Timer.SECOND * 5, this.spawnEnemies, this);
+        if(waveTimer === null){
+            waveTimer = game.time.events.loop(Phaser.Timer.SECOND * 5, this.spawnEnemies, this);
         }
+        
+        firstRun = false;
+        
     },
 
     preload: function() {
+       game.load.image('space', 'assets/space.jpg');  
        game.load.image('char', 'assets/robot.png');  
        game.load.image('enemy', 'assets/gay_robot.png');  
        game.load.image('lazer', 'assets/lazer.png');
@@ -40,8 +46,10 @@ var main_state = {
 
     create: function() { 
         game.physics.startSystem(Phaser.Physics.ARCADE);
+        game.add.sprite(0 , 0 , 'space');
+        //game.stage.backgroundColor = '#736357';
         
-        game.stage.backgroundColor = '#736357';
+        startText = game.add.text(100, 300, 'Press space to start the game!', { fontSize: '32px', fill: '#FFFFF0' });
         
         velocity = -500;
         lazer_velocity = 300;
@@ -58,11 +66,13 @@ var main_state = {
         downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         downKey.onDown.add(this.moveDown, this);
         
-        this.startGame();
+        //waveTimer = null;
+        
+        //this.startGame();
     },
 
     update: function() {
-        if(!this.isOver){
+        if(!isOver){
         this.fixCharacterPositionIfOutOfScreenBounds();
         this.updateLazers();
         this.updateEnemies();
@@ -96,7 +106,7 @@ var main_state = {
     
     gameOver: function(){
        
-       this.isOver = true;
+       isOver = true;
        this.char.destroy();
        this.char = null;
        for(j = 0; j < lazers.length; j++){
@@ -114,11 +124,11 @@ var main_state = {
        this.scoreText.destroy();
        this.scoreText = null;
        
-       this.bigScore = game.add.text(50, 300 - 32, 'Total Score: ' + this.score , { fontSize: '32px', fill: '#123' });
+       this.bigScore = game.add.text(50, 300 - 32, 'Game Over , Total Score: ' + this.score , { fontSize: '32px', fill: '#FFFFF0' });
     },
     
     spawnEnemies: function(){
-        if(!this.isOver){
+        if(!isOver){
         
         for(i = 0; i < waveDiff; i++){//waves gotta stay waves .... you gotta lose sometime...
         //random / 1 = x / 600
@@ -180,18 +190,18 @@ var main_state = {
     },
     
     moveUp: function(){
-        if(!this.isOver){
+        if(!isOver){
             this.char.body.velocity.y = velocity;
         }
     },
     
     moveDown: function(){
-        if(!this.isOver){
+        if(!isOver){
             this.char.body.velocity.y = -velocity;
         }
     },
     
-    fixCharacterPositionIfOutOfScreenBounds: function(){//TODO
+    fixCharacterPositionIfOutOfScreenBounds: function(){
         if(this.char.y < 0){
             this.char.y = 0;
             this.char.body.velocity.y = 0;
@@ -207,7 +217,7 @@ var main_state = {
     },
     
     shoot_lazer: function(){
-        if(!this.isOver){
+        if(!isOver){
             var a = Math.random();
             var offset_y = 0;
       
@@ -217,7 +227,7 @@ var main_state = {
             offset_y = 13;
         }
       
-         var lazer = game.add.sprite(this.char.x + this.char.width + 3, this.char.y + offset_y, 'lazer'); 
+        var lazer = game.add.sprite(this.char.x + this.char.width + 3, this.char.y + offset_y, 'lazer'); 
         game.physics.arcade.enable(lazer);
       
         lazer.body.velocity.x = lazer_velocity;
@@ -225,7 +235,12 @@ var main_state = {
         lazers.push(lazer);
       
         }else{
-            this.bigScore.destroy();
+            
+            if(!firstRun){
+                this.bigScore.destroy();
+            }else{
+                startText.destroy();
+            }
             this.startGame();
         }
 
@@ -235,6 +250,8 @@ var main_state = {
         this.score += 10;
         this.scoreText.text = "Score: " + this.score;
     },
+
+    
 }
 game.state.add('main', main_state);  
-game.state.start('main');    
+game.state.start('main');  
